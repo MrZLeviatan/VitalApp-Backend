@@ -1,0 +1,294 @@
+# Este es el nombre de nuestro pipeline. Se verás en la pestaña "Actions" de GitHub.
+name: CI/CD Pipeline - VitalApp Backend
+
+permissions:
+  contents: write
+
+# Este bloque define cuándo se ejecuta el pipeline.
+# Se activa cada vez que se hace 'push' o 'pull request' hacia la rama master.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+
+# Define el sistema operativo donde se ejecuta los pasos del pipeline.
+# GitHub crea un entorno temporal basado en Ubuntu cada vez que se ejecuta este workflow.
+jobs:
+  ## CI ( Continua Integración )
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1. Clonar el repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # Esta acción descarga el código fuente del repositorio al entorno temporal.
+        # Sin esto, GitHub Actions no tendría acceso al código.
+
+      # Paso 2. Configurar JDK
+      - name: Set Up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          # Configura Java 21.
+          distribution: 'temurin'
+          # 'Temurin' es una distribución oficial y estable de OpenJDK.
+
+      ## COMPILACIÓN
+
+      #Paso 3. Construir el proyecto con Gradle
+      - name: Build Spring Boot project with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build -x test
+        # Da permisos de ejecución al archivo gradlew / Es necesario porque el entorno Linux de GitHub puede no reconocerlo como ejecutable.
+        # Limpia compilaciónes previas y construye el proyecto desde cero. / Gradle descargará dependencias, compilará el código y generará el '.jar' de Spring Boot.
+        # Omite las pruebas unitarias por el momento para ahorrar tiempo en el pipeline.
+
+
+      ## PRUEBAS AUTOMATIZADAS
+
+      #Paso 4. Verificar las pruebas definidas en el 'src/test/java'
+      - name: Run test code
+        run: |
+          chmod +x gradlew
+          ./gradlew test
+
+
+      ## ANÁLISIS DE CALIDAD
+
+      #Paso 5. Analizar el código mediante SonarCloud
+      - name: Analyze code quality with SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORG: ${{ secrets.SONAR_ORG }}
+        run: |
+          chmod +x ./gradlew
+          git fetch --unshallow || true
+          ./gradlew test jacocoTestReport sonar \
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+            -Dsonar.organization=$SONAR_ORG \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.gradle.skipCompile=true
+
+
+
+# CD ( CONTINUO DESPLIEGUE )
+
+  build_and_publish_image:
+    runs-on: ubuntu-latest
+    needs: build_and_test #Dependencia al anterior paso, solo entra si se cumplió correctamente
+
+    # Exporta los outputs para el siguiente job
+    outputs:
+      image_ref: ${{ steps.set-image-ref.outputs.image_ref }}
+
+    steps:
+
+      # Paso 0.1. Clonar el repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      ## CONTENEDOR
+
+      #Paso 6. Se agrega la etiqueta SHA para la imagen
+      - name: Set IMAGE_TAG (commit SHA)
+        # Define Imagen_Tag con el SHA del commit para imágenes reproducibles
+        run: echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
+
+      #Paso 7. Iniciar Sesión en DockerHub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME}}
+          password: ${{ secrets.DOCKER_HUB_TOKEN}}
+        # Inicia sesión en DockerHub con tus credenciales seguras.
+
+
+      #Paso 8. Construir y Subir la imagen Docker ( sha + latest )
+      - name: Build and push Docker image
+        id: build-image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_HUB_USERNAME }}/vitalapp-backend:${{ env.IMAGE_TAG }}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/vitalapp-backend:latest
+          # Construir y subir imagen con dos tags ( sha y latest )
+
+
+      # Paso 8.1: Exportar referencias como outputs para el siguiente job
+      - name: Export image reference as artifact
+        run: |
+          IMAGE_REF="${{ secrets.DOCKER_HUB_USERNAME }}/vitalapp-backend:${{ env.IMAGE_TAG }}"
+          echo "Exporting IMAGE_REF=$IMAGE_REF"
+          echo "$IMAGE_REF" > image_ref.txt
+        shell: bash
+      # Se exporta la referencia de imagen para el job de Kubernetes
+
+      # Paso 8.2: Carga la referencia de la imagen y se envía al siguiente Job
+      - name: Upload IMAGE_REF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image_ref
+          path: image_ref.txt
+
+      #Paso 9. Escaneo de la imagen con Trivy
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/vitalapp-backend:latest
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      # Paso 10. Verificar imágenes
+      - name: Verify Docker Image
+        run: docker images
+      #  Muestra la lista de imágenes Docker generadas en el pipeline.
+
+
+# Despliegue con KinD ( Kubernetes in Docker )
+  deploy_with_kind:
+    name: deploy with KinD
+    runs-on: ubuntu-latest
+    needs: build_and_publish_image
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Descarga el código del repositorio (para acceder a manifests)
+
+      - name: Set up KinD (Kubernetes in Docker)
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: v0.17.0
+        # Instala y crea un clúster Kubernetes KinD dentro del runner
+
+      - name: Verify KinD cluster
+        run: |
+          kubectl get nodes
+          kubectl cluster-info
+        # Verifica que el clúster está funcionando correctamente
+
+      - name: Download IMAGE_REF artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: image_ref
+
+      - name: Load IMAGE_REF value
+        run: |
+          IMAGE_REF=$(cat image_ref.txt)
+          echo "IMAGE_REF value loaded: $IMAGE_REF"
+          echo "IMAGE_REF=$IMAGE_REF" >> $GITHUB_ENV
+        # Carga la imagen
+
+      - name: Pull and load image into KinD
+        run: |
+          echo "Pulling image: $IMAGE_REF"
+
+          if [ -z "$IMAGE_REF" ]; then
+            echo "ERROR: IMAGE_REF está vacío. Verifica el paso 'Load IMAGE_REF value'."
+            exit 1
+          fi
+
+          docker pull "$IMAGE_REF"
+          kind load docker-image "$IMAGE_REF" --name kind
+        # Descarga la imagen desde Docker Hub y la carga en el clúster KinD
+
+
+      - name: Ensure IMAGE_REF variable is exported
+        run: |
+          echo "Exporting IMAGE_REF from environment..."
+          echo "IMAGE_REF=$IMAGE_REF"
+          export IMAGE_REF=$IMAGE_REF
+        env:
+          IMAGE_REF: ${{ env.IMAGE_REF }}
+        # Toma la imagen anteriormente enviada
+
+
+      - name: Apply K8s manifests
+        run: |
+          echo "Using image: $IMAGE_REF"
+
+          # Copiar los manifests originales a una carpeta temporal
+          cp -r k8s k8s_ci
+
+          # Reemplazar placeholder por el valor real de la imagen
+          sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_REF}|g" k8s_ci/deployment.yaml
+
+          echo "Deployment file after replacement:"
+          grep "image:" k8s_ci/deployment.yaml || echo "No image line found!"
+          cat k8s_ci/deployment.yaml
+
+          # Aplicar los manifests al clúster KinD
+          kubectl apply -f k8s_ci/
+          kubectl rollout status deployment/vitalapp-backend --timeout=300s
+        env:
+          IMAGE_REF: ${{ env.IMAGE_REF }}
+        # Aplica le kubernetes a la imagen localmente
+
+      - name: Health Check (verify pod)
+        run: |
+          kubectl get pods
+          kubectl get svc
+          kubectl port-forward svc/vitalapp-backend-svc 8080:80 &
+          sleep 5
+          curl -f http://localhost:8080/actuator/health
+        # Verifica la salud del servicio desplegado en KinD
+
+# Despliegue
+  deploy_to_render:
+    runs-on: ubuntu-latest
+    needs: deploy_with_kind
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          IMAGE_TAG: ${{ github.sha }}  # Tag único por commit
+        run: |
+          IMAGE_REF="${{ secrets.DOCKER_HUB_USERNAME }}/vitalapp-backend:$IMAGE_TAG"
+          sed -i "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_REF|g" docker-compose.prod.yml
+          docker compose -f docker-compose.prod.yml up -d
+          echo "Deploying image $IMAGE_REF to Render"
+          curl -X POST "https://api.render.com/deploy/srv-d3jhork9c44c73bsuqh0" \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"dockerImage\": \"$IMAGE_REF\"}"
+    # Despliega en Render los cambios al paquete de DockerHub y Compose
+
+# Versión de despliegue
+  create_github_release:
+    name: create GitHub Release
+    runs-on: ubuntu-latest
+    needs: deploy_to_render
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Este token permite hacer commits y releases
+        with:
+          tag_name: "v${{ github.run_number }}"    # Tag único basado en el SHA del commit
+          release_name: "Release v${{ github.run_number }}"
+          body: |
+            Despliegue automático desde CI/CD.
+            Últimos cambios: ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+    # Versiona los cambios y permite la descarga automática
+

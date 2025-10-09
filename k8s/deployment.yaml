@@ -1,0 +1,36 @@
+# Kubernetes Deployment para el backend VitalApp
+
+apiVersion: apps/v1 # Versión de la API para el recurso Deployment
+kind: Deployment    # Tipo de objeto que vamos a crear
+metadata:
+  name: vitalapp-backend  # Nombre del deployment
+  labels:
+    app: vitalapp-backend # Label común que asocia este deployment con un Service
+spec:
+  replicas: 1 # Número de réplicas (pods iguales que se lanzarán)
+  selector:   # Define qué pods serán manejados por este Deployment
+    matchLabels:
+      app: vitalapp-backend
+  template:
+    metadata:
+      labels:
+        app: vitalapp-backend # Etiqueta que vincula el Pod con el Service
+    spec:
+      containers:
+        - name: vitalapp-backend  # Nombre del contenedor
+          image: IMAGE_PLACEHOLDER
+          imagePullPolicy: IfNotPresent # Solo descargar la imagen si no está localmente
+          ports:
+            - containerPort: 8080
+          livenessProbe:            # Verificaciones de salud (probes)
+            httpGet:
+              path: /actuator/health   # Ruta de salud expuesta por Spring Boot Actuator
+              port: 8080
+            initialDelaySeconds: 60    # Espera antes del primer chequeo
+            periodSeconds: 20          # Intervalo entre chequeo
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 15

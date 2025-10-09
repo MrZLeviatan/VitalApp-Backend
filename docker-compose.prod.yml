@@ -1,0 +1,9 @@
+services:
+  vitalapp-backend:
+    image: IMAGE_TAG_PLACEHOLDER    # Será remplazada por la imagen construida en el CI/CD
+    container_name: vitalapp-backend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped     # Garantiza que el contenedor se reinicia si falla.
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # Permite que Spring Boot use el perfil de producción
