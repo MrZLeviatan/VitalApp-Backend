@@ -263,7 +263,7 @@ jobs:
           sed -i "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_REF|g" docker-compose.prod.yml
           docker compose -f docker-compose.prod.yml up -d
           echo "Deploying image $IMAGE_REF to Render"
-          curl -X POST "https://api.render.com/deploy/srv-d3jhork9c44c73bsuqh0" \
+          curl -X POST "https://api.render.com/deploy/$RENDER_API_KEY" \
             -H "Authorization: Bearer $RENDER_API_KEY" \
             -H "Content-Type: application/json" \
             -d "{\"dockerImage\": \"$IMAGE_REF\"}"
