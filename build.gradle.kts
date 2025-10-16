@@ -81,6 +81,18 @@ dependencies {
     // Agrega el Actuator para exponer endpoints de monitoreo
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // ==== JWT ====
+    // Librería para generar y firmar tokens JWT (se combina con Spring Security).
+    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
+
+    // ==== Persistencia ====
+    // Spring Boot JPA (para Hibernate y ORM).
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    // Driver JDBC para Oracle (versión 21.x).TE MU
+    implementation("com.oracle.database.jdbc:ojdbc11:23.2.0.0")
+
 
     // ==== Utilidades ====
     // Lombok: Reduce el código repetitivo (Getters, Setters, etc.).
@@ -88,6 +100,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testCompileOnly("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")
+    // Swagger / OpenAPI documentation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
     // MapStruct: Mapeo entre DTOs y entidades.
     implementation("org.mapstruct:mapstruct:1.6.3")
@@ -101,6 +115,9 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito:mockito-core")
 }
 
 
