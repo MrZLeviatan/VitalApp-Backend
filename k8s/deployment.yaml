@@ -22,15 +22,20 @@ spec:
           imagePullPolicy: IfNotPresent # Solo descargar la imagen si no está localmente
           ports:
             - containerPort: 8080
-          livenessProbe:            # Verificaciones de salud (probes)
+          livenessProbe:
             httpGet:
-              path: /actuator/health   # Ruta de salud expuesta por Spring Boot Actuator
+              path: /actuator/health
               port: 8080
-            initialDelaySeconds: 60    # Espera antes del primer chequeo
-            periodSeconds: 20          # Intervalo entre chequeo
+            initialDelaySeconds: 120     # Espera 2 minutos antes del primer chequeo
+            periodSeconds: 30            # Intervalo más relajado
+            timeoutSeconds: 10           # Da más tiempo para responder
+            failureThreshold: 5          # Tolera 5 fallos antes de reiniciar
+
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 45
-            periodSeconds: 15
+            initialDelaySeconds: 100     # Espera 1:40 antes del primer chequeo
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 5
