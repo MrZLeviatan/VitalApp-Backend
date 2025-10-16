@@ -26,16 +26,12 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 120     # Espera 2 minutos antes del primer chequeo
-            periodSeconds: 30            # Intervalo más relajado
-            timeoutSeconds: 10           # Da más tiempo para responder
-            failureThreshold: 5          # Tolera 5 fallos antes de reiniciar
+            initialDelaySeconds: 60
+            periodSeconds: 20
 
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 100     # Espera 1:40 antes del primer chequeo
-            periodSeconds: 20
-            timeoutSeconds: 10
-            failureThreshold: 5
+            initialDelaySeconds: 45
+            periodSeconds: 15

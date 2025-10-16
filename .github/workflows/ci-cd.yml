@@ -9,10 +9,10 @@ permissions:
 on:
   push:
     branches:
-      - master
+      - Pruebas
   pull_request:
     branches:
-      - master
+      - Pruebas
 
 
 # Define el sistema operativo donde se ejecuta los pasos del pipeline.
@@ -236,6 +236,17 @@ jobs:
         env:
           IMAGE_REF: ${{ env.IMAGE_REF }}
         # Aplica le kubernetes a la imagen localmente
+
+      - name: Debug failed rollout
+        if: failure()
+        run: |
+          echo "📋 Checking pods status..."
+          kubectl get pods -n default
+          echo "🔍 Describing the pod..."
+          kubectl describe pod -l app=vitalapp-backend -n default
+          echo "📜 Showing container logs..."
+          kubectl logs -l app=vitalapp-backend -n default --tail=50
+
 
       - name: Check rollout status and logs if fail
         run: |
