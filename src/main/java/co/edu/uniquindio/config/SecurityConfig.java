@@ -54,6 +54,7 @@ public class SecurityConfig {
                                         "/v3/api-docs/swagger-config"
                                 ).permitAll() // Docs públicas
                         .requestMatchers("/api/auth/**").permitAll() // Login público
+                        .requestMatchers("/actuator/health").permitAll() // Permios para los Kubernetes
                         .requestMatchers("/api/paciente/**").hasAnyAuthority("ROLE_PACIENTE")
                         .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/medico/**").hasAnyAuthority("ROLE_MEDICO")
