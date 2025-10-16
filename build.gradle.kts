@@ -80,12 +80,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // Agrega el Actuator para exponer endpoints de monitoreo
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // Starter de seguridad: Autenticación y autorización básica.
+    implementation("org.springframework.boot:spring-boot-starter-security")
 
     // ==== JWT ====
     // Librería para generar y firmar tokens JWT (se combina con Spring Security).
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
+
 
     // ==== Persistencia ====
     // Spring Boot JPA (para Hibernate y ORM).
