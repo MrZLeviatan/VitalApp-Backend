@@ -5,6 +5,7 @@ import co.edu.uniquindio.dto.detalleFormula.RegistroDetalleFormulaDto;
 import co.edu.uniquindio.dto.formula.RegistroFormulaDto;
 import co.edu.uniquindio.exceptions.ElementoNoEncontradoException;
 import co.edu.uniquindio.mapper.objects.FormulaMapper;
+import co.edu.uniquindio.mapper.tools.DetalleFormulaMapper;
 import co.edu.uniquindio.models.objects.Cita;
 import co.edu.uniquindio.models.objects.DetalleFormula;
 import co.edu.uniquindio.models.objects.Formula;
@@ -48,6 +49,9 @@ public class TestRegistroFormula {
     @Mock
     private DetalleFormularioRepo detalleFormularioRepo;
 
+    @Mock
+    private DetalleFormulaMapper detalleFormulaMapper;
+
     @InjectMocks
     private FormulaServiceImpl formulaService;
 
@@ -84,6 +88,9 @@ public class TestRegistroFormula {
         when(pacienteService.buscarPacienteId(1L)).thenReturn(paciente);
         when(citasService.obtenerCita(1L)).thenReturn(cita);
         when(medicamentoService.obtenerMedicamentoId(10L)).thenReturn(medicamento);
+        when(detalleFormulaMapper.toEntity(any(RegistroDetalleFormulaDto.class)))
+                .thenReturn(detalleFormula);
+
 
         // Ejecutamos el método
         formulaService.registrarFormula(registroFormulaDto);

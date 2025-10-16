@@ -10,6 +10,7 @@ import co.edu.uniquindio.models.users.Paciente;
 import co.edu.uniquindio.repository.objects.AgendaRepo;
 import co.edu.uniquindio.repository.objects.CitaRepo;
 import co.edu.uniquindio.service.objects.AgendaService;
+import co.edu.uniquindio.service.objects.AlertaService;
 import co.edu.uniquindio.service.objects.impl.CitaServiceImpl;
 import co.edu.uniquindio.service.users.MedicoService;
 import co.edu.uniquindio.service.users.PacienteService;
@@ -41,6 +42,9 @@ public class TestRegistroCita {
 
     @Mock
     private CitaRepo citaRepo;
+
+    @Mock
+    private AlertaService alertaService;
 
     @Mock
     private AgendaRepo agendaRepo;

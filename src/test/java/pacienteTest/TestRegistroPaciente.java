@@ -7,6 +7,7 @@ import co.edu.uniquindio.exceptions.ElementoNoEncontradoException;
 import co.edu.uniquindio.exceptions.ElementoRepetidoException;
 import co.edu.uniquindio.mapper.users.PacienteMapper;
 import co.edu.uniquindio.models.objects.Eps;
+import co.edu.uniquindio.models.tools.Telefono;
 import co.edu.uniquindio.models.users.Paciente;
 import co.edu.uniquindio.repository.users.PacienteRepo;
 import co.edu.uniquindio.service.users.impl.PacienteServiceImpl;
@@ -18,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,6 +49,9 @@ public class TestRegistroPaciente {
     private PacienteServiceImpl pacienteService;
 
     private RegistrarPacienteDto pacienteValidoDto;
+    private Paciente paciente;
+    private List<Telefono> telefonos = new ArrayList<>();
+
 
     @BeforeEach
     void setUp() {
@@ -60,6 +65,7 @@ public class TestRegistroPaciente {
                 1L,
                 List.of(new RegistroTelefonoDto("3001112223"))
         );
+
     }
 
 
@@ -69,7 +75,12 @@ public class TestRegistroPaciente {
         // Configurar mocks
         Eps eps = new Eps();
         when(epsService.encontrarEps(1L)).thenReturn(eps);
-        when(pacienteMapper.toEntity(any())).thenReturn(new Paciente());
+        when(pacienteMapper.toEntity(any())).thenAnswer(invocation -> {
+            Paciente p = new Paciente();
+            p.setTelefonos(new ArrayList<>()); // inicializamos la lista
+            return p;
+        });
+
 
         // Ejecutar método
         pacienteService.registrarPaciente(pacienteValidoDto);

@@ -7,6 +7,7 @@ import co.edu.uniquindio.exceptions.ElementoNoEncontradoException;
 import co.edu.uniquindio.exceptions.ElementoRepetidoException;
 import co.edu.uniquindio.mapper.users.MedicoMapper;
 import co.edu.uniquindio.models.tools.Especialidad;
+import co.edu.uniquindio.models.tools.Telefono;
 import co.edu.uniquindio.models.users.Medico;
 import co.edu.uniquindio.repository.users.MedicoRepo;
 import co.edu.uniquindio.service.objects.AgendaService;
@@ -19,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -49,6 +51,7 @@ public class TestRegistroMedico {
     private Especialidad especialidad;
     private Medico medico;
 
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -72,6 +75,7 @@ public class TestRegistroMedico {
         medico = new Medico();
         medico.setId(10L);
         medico.setNombre("Dr. Leviatan");
+        medico.setTelefonos(new ArrayList<>());
     }
 
     // Registro exitoso

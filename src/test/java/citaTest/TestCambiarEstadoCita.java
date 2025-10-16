@@ -3,8 +3,11 @@ package citaTest;
 import co.edu.uniquindio.dto.cita.CambiarEstadoCitaDto;
 import co.edu.uniquindio.exceptions.ElementoNoEncontradoException;
 import co.edu.uniquindio.models.enums.EstadoCita;
+import co.edu.uniquindio.models.objects.Agenda;
 import co.edu.uniquindio.models.objects.Cita;
+import co.edu.uniquindio.models.users.Paciente;
 import co.edu.uniquindio.repository.objects.CitaRepo;
+import co.edu.uniquindio.service.objects.AlertaService;
 import co.edu.uniquindio.service.objects.impl.CitaServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +29,12 @@ public class TestCambiarEstadoCita {
     @Mock
     private CitaRepo citaRepo;
 
+    @Mock
+    private AlertaService alertaService;
+
     @InjectMocks
     private CitaServiceImpl citasService;
+
 
     private Cita cita;
     private CambiarEstadoCitaDto dtoCorrecto;
@@ -39,6 +47,14 @@ public class TestCambiarEstadoCita {
         cita.setId(1L);
         cita.setEstadoCita(EstadoCita.AGENDADA);
 
+        // Inicializar agenda para evitar NullPointerException
+        Agenda agenda = new Agenda();
+        agenda.setDia(LocalDate.now()); // ejemplo, según tu modelo
+        cita.setAgenda(agenda);
+
+        Paciente paciente = new Paciente();
+        paciente.setId(1L);
+        cita.setPaciente(paciente);
 
         dtoCorrecto = new CambiarEstadoCitaDto(1L);
     }
