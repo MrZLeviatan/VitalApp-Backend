@@ -22,16 +22,16 @@ spec:
           imagePullPolicy: IfNotPresent # Solo descargar la imagen si no está localmente
           ports:
             - containerPort: 8080
-          livenessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 20
+          #livenessProbe:
+          #  httpGet:
+          #    path: /actuator/health
+          #    port: 8080
+          #  initialDelaySeconds: 60
+          #  periodSeconds: 20
 
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 45
-            periodSeconds: 15
+          #readinessProbe:
+          #  httpGet:
+          #    path: /actuator/health
+          #    port: 8080
+          #  initialDelaySeconds: 45
+          #  periodSeconds: 15
