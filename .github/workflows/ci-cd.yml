@@ -237,6 +237,31 @@ jobs:
           IMAGE_REF: ${{ env.IMAGE_REF }}
         # Aplica le kubernetes a la imagen localmente
 
+        
+      - name: Debug failed rollout (extended)
+        if: failure()
+        run: |
+          echo "📋 Checking pods status..."
+          kubectl get pods -n default
+          POD=$(kubectl get pods -l app=vitalapp-backend -o jsonpath="{.items[0].metadata.name}")
+          echo "🔍 Describing pod $POD ..."
+          kubectl describe pod $POD
+          echo "📜 Showing last 100 logs from container..."
+          kubectl logs $POD --previous --tail=100 || kubectl logs $POD --tail=100
+
+
+
+      - name: Check rollout status and logs if fail
+        run: |
+          echo "⏳ Waiting for deployment rollout..."
+          if ! kubectl rollout status deployment/vitalapp-backend --timeout=300s; then
+          echo "🚨 Deployment failed. Showing pod logs:"
+          kubectl get pods -l app=vitalapp-backend
+          POD_NAME=$(kubectl get pods -l app=vitalapp-backend -o jsonpath="{.items[0].metadata.name}")
+          echo "Logs from pod: $POD_NAME"
+          kubectl logs $POD_NAME
+            exit 1
+          fi
 
       - name: Health Check (verify pod)
         run: |
