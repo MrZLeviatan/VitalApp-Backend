@@ -246,7 +246,43 @@ jobs:
           curl -f http://localhost:8080/actuator/health
         # Verifica la salud del servicio desplegado en KinD
 
-# Despliegue
+
+  deploy_database_to_render:
+    runs-on: ubuntu-latest
+    needs: deploy_with_kind
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+        # Instala el Post, permitiendo la conexión a un BD
+
+      - name: Test connection to Render Database
+        env:
+          DATABASE_URL: ${{ secrets.RENDER_DATABASE_URL }}
+        run: |
+          echo "🔍 Testing connection to Render PostgreSQL..."
+          for i in {1..6}; do
+            if psql "$DATABASE_URL" -c '\q'; then
+              echo "Connection successful to Render DB!"
+              break
+            else
+              echo "Attempt $i: Database not reachable yet, retrying in 10s..."
+              sleep 10
+            fi
+            if [ $i -eq 6 ]; then
+              echo "Database unreachable after multiple attempts."
+              exit 1
+            fi
+          done
+        # Probar conexión con Render Database
+  
+
+  # Despliegue Backend
   deploy_to_render:
     runs-on: ubuntu-latest
     needs: deploy_with_kind
