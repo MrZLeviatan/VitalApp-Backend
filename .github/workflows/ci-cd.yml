@@ -264,7 +264,7 @@ jobs:
   # Despliegue Backend
   deploy_to_render:
     runs-on: ubuntu-latest
-    needs: deploy_with_kind
+    needs: [deploy_with_kind, deploy_database_to_render]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -289,7 +289,7 @@ jobs:
   create_github_release:
     name: create GitHub Release
     runs-on: ubuntu-latest
-    needs: [deploy_with_kind, deploy_database_to_render]
+    needs: deploy_to_render
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
