@@ -44,14 +44,14 @@ public class PacienteCitaController {
 
     // Obtener todas las citas Pendientes de un paciente por su ID
     @GetMapping("/{idPaciente}/citas/pendientes")
-    public ResponseEntity<List<CitaDto>> listarCitasPendientesPaciente(@PathVariable Long idPaciente)
+    public ResponseEntity<List<CitaDto>> listarCitasPendientesPaciente(@PathVariable("idPaciente") Long idPaciente)
             throws ElementoNoEncontradoException {
         return ResponseEntity.ok(citasService.obtenerCitasPacientePendientes(idPaciente));
     }
 
     // Obtener todas las citas de un paciente por su ID
     @GetMapping("/{idPaciente}/citas")
-    public ResponseEntity<List<CitaDto>> obtenerCitasPorPaciente(@PathVariable Long idPaciente)
+    public ResponseEntity<List<CitaDto>> obtenerCitasPorPaciente(@PathVariable("idPaciente") Long idPaciente)
             throws ElementoNoEncontradoException {
 
         List<CitaDto> citas = citasService.obtenerCitasPaciente(idPaciente);
@@ -61,7 +61,7 @@ public class PacienteCitaController {
 
     // Obtener una cita por su ID
     @GetMapping("/citas/{idCita}")
-    public ResponseEntity<CitaDto> obtenerCitaPorId(@PathVariable Long idCita)
+    public ResponseEntity<CitaDto> obtenerCitaPorId(@PathVariable("idCita") Long idCita)
             throws ElementoNoEncontradoException {
 
         CitaDto citaDto = citasService.obtenerCitaDtoId(idCita);
@@ -93,7 +93,7 @@ public class PacienteCitaController {
 
     // Ver Medicos de la especialidad seleccionada
     @GetMapping("/citas/registro/especialidades/{idEspecializacion}/medicos")
-    public ResponseEntity<MensajeDto<List<MedicoDto>>> listarMedicosSegunEspecializacion(@PathVariable Long idEspecializacion) {
+    public ResponseEntity<MensajeDto<List<MedicoDto>>> listarMedicosSegunEspecializacion(@PathVariable("idEspecializacion") Long idEspecializacion) {
 
         List<MedicoDto> listaMedicos = medicoService.listarMedicosEspecialidad(idEspecializacion);
         return ResponseEntity.ok().body(new MensajeDto<>(false, listaMedicos));
@@ -101,7 +101,7 @@ public class PacienteCitaController {
 
     // Ver agenda libre del médico seleccionado
     @GetMapping("/citas/medicos/{idMedico}/agenda")
-    public ResponseEntity<MensajeDto<List<AgendaDto>>> listarAgendaMedico(@PathVariable Long idMedico)
+    public ResponseEntity<MensajeDto<List<AgendaDto>>> listarAgendaMedico(@PathVariable("idMedico") Long idMedico)
             throws ElementoNoEncontradoException {
 
         List<AgendaDto> listarAgenda = agendaService.listarAgendaLibreMedico(idMedico);

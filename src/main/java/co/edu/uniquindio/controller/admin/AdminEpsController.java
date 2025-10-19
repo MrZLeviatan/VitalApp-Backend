@@ -31,7 +31,7 @@ public class AdminEpsController {
 
     // Obtiene Eps mediante su ID
     @GetMapping("/eps/{id}")
-    public ResponseEntity<MensajeDto<EpsDto>> obtenerEpsId(@PathVariable Long id)
+    public ResponseEntity<MensajeDto<EpsDto>> obtenerEpsId(@PathVariable("id") Long id)
             throws ElementoNoEncontradoException {
 
         EpsDto epsDto = epsService.obtenerEpsDto(id);

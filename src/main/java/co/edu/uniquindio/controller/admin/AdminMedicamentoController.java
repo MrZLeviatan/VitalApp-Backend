@@ -29,7 +29,7 @@ public class AdminMedicamentoController {
 
 
     @GetMapping("/medicamento/{idMedicamento}")
-    public ResponseEntity<MensajeDto<MedicamentoDto>> obtenerMedicamentoDto(@PathVariable Long idMedicamento)
+    public ResponseEntity<MensajeDto<MedicamentoDto>> obtenerMedicamentoDto(@PathVariable("idMedicamento") Long idMedicamento)
             throws ElementoNoEncontradoException {
 
         MedicamentoDto medicamentoDto = medicamentoService.obtenerMedicamentoDtoId(idMedicamento);

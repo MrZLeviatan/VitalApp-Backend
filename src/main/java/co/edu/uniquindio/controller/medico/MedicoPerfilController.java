@@ -34,7 +34,7 @@ public class MedicoPerfilController {
 
     // Obtener el Médico mediante su Id
     @GetMapping("/{id}")
-    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorId(@PathVariable Long id)
+    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorId(@PathVariable("id") Long id)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el MedicoDto mediante el método del servicio
@@ -45,7 +45,7 @@ public class MedicoPerfilController {
 
     // Obtener el Médico mediante su email
     @GetMapping("/buscar-email")
-    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorEmail(@RequestParam String email)
+    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorEmail(@RequestParam("email") String email)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el MedicoDto mediante el método del servicio
@@ -96,7 +96,7 @@ public class MedicoPerfilController {
 
     // Ver agenda del médico seleccionado
     @GetMapping("/{idMedico}/agenda")
-    public ResponseEntity<MensajeDto<List<AgendaDto>>> listarAgendaMedico(@PathVariable Long idMedico)
+    public ResponseEntity<MensajeDto<List<AgendaDto>>> listarAgendaMedico(@PathVariable("idMedico") Long idMedico)
             throws ElementoNoEncontradoException {
 
         List<AgendaDto> listarAgenda = agendaService.listarAgendaMedicoId(idMedico);

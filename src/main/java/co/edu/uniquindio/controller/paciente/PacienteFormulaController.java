@@ -24,7 +24,7 @@ public class PacienteFormulaController {
 
     // Obtiene las fórmulas de un paciente
     @GetMapping("{idPaciente}/formula")
-    public ResponseEntity<MensajeDto<List<FormulaDto>>> obtenerFormulasPaciente(@PathVariable Long idPaciente)
+    public ResponseEntity<MensajeDto<List<FormulaDto>>> obtenerFormulasPaciente(@PathVariable("idPaciente") Long idPaciente)
             throws ElementoNoEncontradoException {
 
         List<FormulaDto> listaFormulas = formulaService.obtenerFormulasPaciente(idPaciente);
@@ -34,7 +34,7 @@ public class PacienteFormulaController {
 
     // Obtiene una formula especifica
     @GetMapping("/formula/{idFormula}")
-    public ResponseEntity<MensajeDto<FormulaDto>> obtenerFormula(@PathVariable Long idFormula)
+    public ResponseEntity<MensajeDto<FormulaDto>> obtenerFormula(@PathVariable("idFormula") Long idFormula)
             throws ElementoNoEncontradoException {
 
         FormulaDto formulaDto = formulaService.obtenerFormulaDto(idFormula);
@@ -44,7 +44,7 @@ public class PacienteFormulaController {
 
     // Obtiene los detalles de una fórmula
     @GetMapping("formula/{idFormula}/detalles")
-    public ResponseEntity<MensajeDto<List<DetalleFormulaDto>>> obtenerDetallesFormula(@PathVariable Long idFormula)
+    public ResponseEntity<MensajeDto<List<DetalleFormulaDto>>> obtenerDetallesFormula(@PathVariable("idFormula") Long idFormula)
             throws ElementoNoEncontradoException {
 
         List<DetalleFormulaDto> detalleFormulaDtos = formulaService.obtenerDetalleFormula(idFormula);

@@ -47,7 +47,7 @@ public class AdminPacienteController {
 
     // Obtener el Paciente mediante su Id
     @GetMapping("/paciente/{idPaciente}")
-    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorId(@PathVariable Long idPaciente)
+    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorId(@PathVariable("idPaciente") Long idPaciente)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el PacienteDto mediante el método del servicio
@@ -59,7 +59,7 @@ public class AdminPacienteController {
 
     // Obtener el Paciente mediante su email
     @GetMapping("/paciente/buscar-email")
-    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorEmail(@RequestParam String email)
+    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorEmail(@RequestParam("email") String email)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el PacienteDto mediante el método del servicio
@@ -73,10 +73,10 @@ public class AdminPacienteController {
     @GetMapping("/paciente/listar")
     public ResponseEntity<MensajeDto<List<PacienteDto>>> listarPacientes(
             // Se toma los parámetros que haya enviado
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) Long idEps,
-            @RequestParam(required = false) Long idCiudad) {
+            @RequestParam(value = "pagina", defaultValue = "0") int pagina,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "idEps", required = false) Long idEps,
+            @RequestParam(value = "idCiudad", required = false) Long idCiudad) {
         // Se lista los pacientes y se devuelven
         List<PacienteDto> pacientes = pacienteService.listarPacientes(pagina, size, idEps, idCiudad);
         return ResponseEntity.ok().body(new MensajeDto<>(false, pacientes));
@@ -87,7 +87,7 @@ public class AdminPacienteController {
 
     // Obtener todas las citas de un paciente por su ID
     @GetMapping("/paciente/{idPaciente}/citas")
-    public ResponseEntity<MensajeDto<List<CitaDto>>> obtenerCitasPorPaciente(@PathVariable Long idPaciente)
+    public ResponseEntity<MensajeDto<List<CitaDto>>> obtenerCitasPorPaciente(@PathVariable("idPaciente") Long idPaciente)
             throws ElementoNoEncontradoException {
 
         List<CitaDto> citas = citasService.obtenerCitasPaciente(idPaciente);
@@ -99,7 +99,7 @@ public class AdminPacienteController {
 
     // Obtiene las fórmulas de un paciente
     @GetMapping("/paciente/{idPaciente}/formula")
-    public ResponseEntity<MensajeDto<List<FormulaDto>>> obtenerFormulasPaciente(@PathVariable Long idPaciente)
+    public ResponseEntity<MensajeDto<List<FormulaDto>>> obtenerFormulasPaciente(@PathVariable("idPaciente") Long idPaciente)
             throws ElementoNoEncontradoException {
 
         List<FormulaDto> listaFormulas = formulaService.obtenerFormulasPaciente(idPaciente);
@@ -109,7 +109,7 @@ public class AdminPacienteController {
 
     // Obtiene una formula especifica
     @GetMapping("/paciente/formula/{idFormula}")
-    public ResponseEntity<MensajeDto<FormulaDto>> obtenerFormula(@PathVariable Long idFormula)
+    public ResponseEntity<MensajeDto<FormulaDto>> obtenerFormula(@PathVariable("idFormula") Long idFormula)
             throws ElementoNoEncontradoException {
 
         FormulaDto formulaDto = formulaService.obtenerFormulaDto(idFormula);
@@ -119,7 +119,7 @@ public class AdminPacienteController {
 
     // Obtiene los detalles de una fórmula
     @GetMapping("/paciente/formula/{idFormula}/detalles")
-    public ResponseEntity<MensajeDto<List<DetalleFormulaDto>>> obtenerDetallesFormula(@PathVariable Long idFormula)
+    public ResponseEntity<MensajeDto<List<DetalleFormulaDto>>> obtenerDetallesFormula(@PathVariable("idFormula") Long idFormula)
             throws ElementoNoEncontradoException {
 
         List<DetalleFormulaDto> detalleFormulaDtos = formulaService.obtenerDetalleFormula(idFormula);
