@@ -2,6 +2,7 @@ package co.edu.uniquindio.controller.admin;
 
 import co.edu.uniquindio.dto.MensajeDto;
 import co.edu.uniquindio.dto.agenda.AgendaDto;
+import co.edu.uniquindio.dto.agenda.RegistrarAgendaDto;
 import co.edu.uniquindio.dto.cita.CitaDto;
 import co.edu.uniquindio.dto.medico.EliminarMedicoDto;
 import co.edu.uniquindio.dto.medico.MedicoDto;
@@ -113,5 +114,41 @@ public class AdminMedicoController {
         return ResponseEntity.ok().body(new MensajeDto<>(false,citas));
     }
 
+
+    // ========== GESTIÓN DE AGENDA ==========
+
+    /**
+     * Registrar un nuevo horario en la agenda de un médico
+     * POST /api/admin/medico/agenda/registro
+     */
+    @PostMapping("/medico/agenda/registro")
+    public ResponseEntity<MensajeDto<String>> registrarAgenda(
+            @RequestBody RegistrarAgendaDto registrarAgendaDto)
+            throws ElementoNoEncontradoException {
+        
+        // Llamar al servicio para registrar la agenda
+        agendaService.registrarAgenda(registrarAgendaDto);
+        
+        // Retornar respuesta exitosa
+        return ResponseEntity.ok()
+                .body(new MensajeDto<>(false, "Agenda registrada exitosamente"));
+    }
+
+    /**
+     * Eliminar un horario específico de la agenda
+     * DELETE /api/admin/medico/agenda/{idAgenda}
+     */
+    @DeleteMapping("/medico/agenda/{idAgenda}")
+    public ResponseEntity<MensajeDto<String>> eliminarAgenda(
+            @PathVariable("idAgenda") Long idAgenda)
+            throws ElementoNoEncontradoException {
+        
+        // Llamar al servicio para eliminar la agenda
+        agendaService.eliminarAgenda(idAgenda);
+        
+        // Retornar respuesta exitosa
+        return ResponseEntity.ok()
+                .body(new MensajeDto<>(false, "Agenda eliminada exitosamente"));
+    }
 
 }
