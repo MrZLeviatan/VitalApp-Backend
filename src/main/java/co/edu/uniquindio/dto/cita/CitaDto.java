@@ -14,6 +14,8 @@ public record CitaDto(
         // Datos del paciente
         Long idPaciente,
         String nombrePaciente,
+        String epsPaciente,
+        String telefonoPaciente,
         
         // Datos del médico
         Long idMedico,
