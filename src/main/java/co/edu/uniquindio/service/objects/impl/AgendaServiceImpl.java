@@ -1,6 +1,7 @@
 package co.edu.uniquindio.service.objects.impl;
 
 import co.edu.uniquindio.dto.agenda.AgendaDto;
+import co.edu.uniquindio.dto.agenda.RegistrarAgendaDto;
 import co.edu.uniquindio.exceptions.ElementoNoEncontradoException;
 import co.edu.uniquindio.mapper.objects.AgendaMapper;
 import co.edu.uniquindio.models.objects.Agenda;
@@ -112,5 +113,49 @@ public class AgendaServiceImpl implements AgendaService {
                 .stream()
                 .map(agendaMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void registrarAgenda(RegistrarAgendaDto dto) throws ElementoNoEncontradoException {
+        
+        // 1. Verificar que el médico exista
+        Medico medico = medicoRepo.findById(dto.idMedico())
+                .orElseThrow(() -> new ElementoNoEncontradoException(
+                        "No se encontró el médico con ID: " + dto.idMedico()));
+        
+        // 2. Crear la nueva agenda
+        Agenda agenda = new Agenda();
+        agenda.setMedico(medico);
+        agenda.setDia(dto.dia());
+        agenda.setHoraInicio(dto.horaInicio());
+        agenda.setHoraFin(dto.horaFin());
+        agenda.setActivo(true);
+        agenda.setCita(null); // Sin cita asignada aún (horario disponible)
+        
+        // 3. Guardar en la base de datos
+        agendaRepo.save(agenda);
+    }
+
+    @Override
+    public void eliminarAgenda(Long idAgenda) throws ElementoNoEncontradoException {
+        
+        // 1. Buscar la agenda
+        Agenda agenda = agendaRepo.findById(idAgenda)
+                .orElseThrow(() -> new ElementoNoEncontradoException(
+                        "No se encontró la agenda con ID: " + idAgenda));
+        
+        // 2. Verificar que no tenga cita asignada
+        if (agenda.getCita() != null) {
+            throw new RuntimeException(
+                    "No se puede eliminar una agenda con cita asignada. " +
+                    "Primero cancele la cita.");
+        }
+        
+        // 3. Desactivar la agenda (borrado lógico)
+        agenda.setActivo(false);
+        agendaRepo.save(agenda);
+        
+        // Alternativa: Borrado físico (descomentar si prefieres esto)
+        // agendaRepo.delete(agenda);
     }
 }

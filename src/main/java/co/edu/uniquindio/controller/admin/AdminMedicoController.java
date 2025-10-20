@@ -2,6 +2,7 @@ package co.edu.uniquindio.controller.admin;
 
 import co.edu.uniquindio.dto.MensajeDto;
 import co.edu.uniquindio.dto.agenda.AgendaDto;
+import co.edu.uniquindio.dto.agenda.RegistrarAgendaDto;
 import co.edu.uniquindio.dto.cita.CitaDto;
 import co.edu.uniquindio.dto.medico.EliminarMedicoDto;
 import co.edu.uniquindio.dto.medico.MedicoDto;
@@ -43,7 +44,7 @@ public class AdminMedicoController {
 
     //Obtener medico mediante su Id
     @GetMapping("/medico/{idMedico}")
-    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorId(@PathVariable Long idMedico)
+    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorId(@PathVariable("idMedico") Long idMedico)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el MedicoDto mediante el método del servicio
@@ -55,7 +56,7 @@ public class AdminMedicoController {
 
     //Obtener medico mediante su Email
     @GetMapping("/medico/buscar-email")
-    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorEmail(@RequestParam String email)
+    public ResponseEntity<MensajeDto<MedicoDto>> obtenerMedicoPorEmail(@RequestParam("email") String email)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el MedicoDto mediante el método del servicio
@@ -81,9 +82,9 @@ public class AdminMedicoController {
     @GetMapping("/medico/listar")
     public ResponseEntity<MensajeDto<List<MedicoDto>>> listarMedicos(
             // Se toma los parámetros que haya enviado
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) Long idEspecialidad) {
+            @RequestParam(value = "pagina", defaultValue = "0") int pagina,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "idEspecialidad", required = false) Long idEspecialidad) {
         // Se lista los medicos y se devuelven
         List<MedicoDto> medicos = medicoService.listarMedicos(pagina, size,idEspecialidad);
         return ResponseEntity.ok().body(new MensajeDto<>(false, medicos));
@@ -94,7 +95,7 @@ public class AdminMedicoController {
 
     // Ver agenda del médico seleccionado
     @GetMapping("/medicos/{idMedico}/agenda")
-    public ResponseEntity<MensajeDto<List<AgendaDto>>> listarAgendaMedico(@PathVariable Long idMedico)
+    public ResponseEntity<MensajeDto<List<AgendaDto>>> listarAgendaMedico(@PathVariable("idMedico") Long idMedico)
             throws ElementoNoEncontradoException {
 
         List<AgendaDto> listarAgenda = agendaService.listarAgendaMedicoId(idMedico);
@@ -106,12 +107,48 @@ public class AdminMedicoController {
 
     // Obtener todas las citas de un médico por su Id
     @GetMapping("/medico/{idMedico}/citas")
-    public ResponseEntity<MensajeDto<List<CitaDto>>> obtenerCitasMedico(@PathVariable Long idMedico)
+    public ResponseEntity<MensajeDto<List<CitaDto>>> obtenerCitasMedico(@PathVariable("idMedico") Long idMedico)
             throws ElementoNoEncontradoException {
 
         List<CitaDto> citas = citasService.obtenerCitasMedico(idMedico);
         return ResponseEntity.ok().body(new MensajeDto<>(false,citas));
     }
 
+
+    // ========== GESTIÓN DE AGENDA ==========
+
+    /**
+     * Registrar un nuevo horario en la agenda de un médico
+     * POST /api/admin/medico/agenda/registro
+     */
+    @PostMapping("/medico/agenda/registro")
+    public ResponseEntity<MensajeDto<String>> registrarAgenda(
+            @RequestBody RegistrarAgendaDto registrarAgendaDto)
+            throws ElementoNoEncontradoException {
+        
+        // Llamar al servicio para registrar la agenda
+        agendaService.registrarAgenda(registrarAgendaDto);
+        
+        // Retornar respuesta exitosa
+        return ResponseEntity.ok()
+                .body(new MensajeDto<>(false, "Agenda registrada exitosamente"));
+    }
+
+    /**
+     * Eliminar un horario específico de la agenda
+     * DELETE /api/admin/medico/agenda/{idAgenda}
+     */
+    @DeleteMapping("/medico/agenda/{idAgenda}")
+    public ResponseEntity<MensajeDto<String>> eliminarAgenda(
+            @PathVariable("idAgenda") Long idAgenda)
+            throws ElementoNoEncontradoException {
+        
+        // Llamar al servicio para eliminar la agenda
+        agendaService.eliminarAgenda(idAgenda);
+        
+        // Retornar respuesta exitosa
+        return ResponseEntity.ok()
+                .body(new MensajeDto<>(false, "Agenda eliminada exitosamente"));
+    }
 
 }

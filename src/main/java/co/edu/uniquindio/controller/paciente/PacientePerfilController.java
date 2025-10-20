@@ -29,7 +29,7 @@ public class PacientePerfilController {
 
     // Obtener el Paciente mediante su Id
     @GetMapping("/{id}")
-    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorId(@PathVariable Long id)
+    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorId(@PathVariable("id") Long id)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el PacienteDto mediante el método del servicio
@@ -41,7 +41,7 @@ public class PacientePerfilController {
 
     // Obtener el Paciente mediante su email
     @GetMapping("/buscar-email")
-    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorEmail(@RequestParam String email)
+    public ResponseEntity<MensajeDto<PacienteDto>> obtenerPacientePorEmail(@RequestParam("email") String email)
             throws ElementoNoEncontradoException {
 
         // Se obtiene el PacienteDto mediante el método del servicio

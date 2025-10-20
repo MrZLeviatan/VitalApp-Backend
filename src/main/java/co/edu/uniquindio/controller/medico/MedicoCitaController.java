@@ -24,7 +24,7 @@ public class MedicoCitaController {
 
     // Obtener todas las citas de un médico por su Id
     @GetMapping("/{idMedico}/citas")
-    public ResponseEntity<MensajeDto<List<CitaDto>>> obtenerCitasMedico(@PathVariable Long idMedico)
+    public ResponseEntity<MensajeDto<List<CitaDto>>> obtenerCitasMedico(@PathVariable("idMedico") Long idMedico)
             throws ElementoNoEncontradoException {
 
         List<CitaDto> citas = citasService.obtenerCitasMedico(idMedico);
@@ -34,7 +34,7 @@ public class MedicoCitaController {
 
     // Obtener una cita por su ID
     @GetMapping("/citas/{idCita}")
-    public ResponseEntity<MensajeDto<CitaDto>> obtenerCitaPorId(@PathVariable Long idCita)
+    public ResponseEntity<MensajeDto<CitaDto>> obtenerCitaPorId(@PathVariable("idCita") Long idCita)
             throws ElementoNoEncontradoException {
 
         CitaDto citaDto = citasService.obtenerCitaDtoId(idCita);

@@ -29,7 +29,7 @@ public class AdminEspecialidadController {
 
     // Obtener una especialidad mediante su Id
     @GetMapping("/especialidad/{idEspecialidad}")
-    public ResponseEntity<MensajeDto<EspecialidadDto>> obtenerEspecialidadId(@PathVariable Long idEspecialidad)
+    public ResponseEntity<MensajeDto<EspecialidadDto>> obtenerEspecialidadId(@PathVariable("idEspecialidad") Long idEspecialidad)
             throws ElementoNoEncontradoException {
 
         EspecialidadDto especialidadDto = especialidadService.obtenerEspecialidadDto(idEspecialidad);
