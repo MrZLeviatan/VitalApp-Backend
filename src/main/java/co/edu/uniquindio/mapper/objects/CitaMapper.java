@@ -19,10 +19,21 @@ public interface CitaMapper {
     Cita toEntity(RegistrarCitaDto registrarCitaDto);
 
 
+    // Mapeo de IDs
     @Mapping(target = "idPaciente", source = "paciente.id")
     @Mapping(target = "idMedico", source = "medico.id")
     @Mapping(target = "idFormula", source = "formula.id")
     @Mapping(target = "idAgenda", source = "agenda.id")
+    
+    // Mapeo de nombres y datos adicionales
+    @Mapping(target = "nombrePaciente", source = "paciente.nombre")
+    @Mapping(target = "nombreMedico", source = "medico.nombre")
+    @Mapping(target = "especialidadMedico", source = "medico.especialidad.especialidad")
+    
+    // Mapeo de datos de agenda
+    @Mapping(target = "fecha", source = "agenda.dia")
+    @Mapping(target = "horaInicio", source = "agenda.horaInicio")
+    @Mapping(target = "horaFin", source = "agenda.horaFin")
     CitaDto toDto(Cita cita);
 
 }
